@@ -1,0 +1,18 @@
+{
+	"datasets": [
+		"diabetes_2_components",
+		"diabetes_4_components",
+		"diabetes_6_components",
+		"diabetes_8_components"
+	],
+	"classifiers": [
+		"SVC",
+		"SVC+PCA",
+		"SVC+Chi"
+	],
+	"metrics": [
+		"ACC",
+		"BAC"
+	],
+	"folds": 5
+}

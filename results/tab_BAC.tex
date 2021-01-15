@@ -1,0 +1,24 @@
+\begin{table}[!ht]
+\centering
+\scriptsize
+\begin{tabular}{l|
+S[table-format=0.3, table-figures-uncertainty=1]|
+S[table-format=0.3, table-figures-uncertainty=1]|
+S[table-format=0.3, table-figures-uncertainty=1]}
+\toprule\bfseries Dataset &
+\multicolumn{1}{c|}{\bfseries SVC (1)} &
+\multicolumn{1}{c|}{\bfseries SVC+PCA (2)} &
+\multicolumn{1}{c }{\bfseries SVC+Chi (3)} \\
+\midrule
+\emph{diabetes-2-components}& 0.604(24) & 0.549(13) & 0.547(10) \\
+\ & $_{all}$& $_{-}$& $_{-}$\\
+\emph{diabetes-4-components}& 0.604(24) & 0.655(15) & 0.615(18) \\
+\ & $_{-}$& $_{all}$& $_{-}$\\
+\emph{diabetes-6-components}& 0.604(24) & 0.659(18) & 0.605(25) \\
+\ & $_{-}$& $_{all}$& $_{-}$\\
+\emph{diabetes-8-components}& 0.604(24) & 0.658(17) & 0.604(24) \\
+\ & $_{-}$& $_{all}$& $_{-}$\\
+\bottomrule
+\end{tabular}
+\caption{Results for BAC metric}
+\end{table}
