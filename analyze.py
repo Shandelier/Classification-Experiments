@@ -20,9 +20,9 @@ from sklearn.decomposition import PCA
 
 # Initialize classifiers
 classifiers = {
-    'SVC': svm.SVC(gamma='scale'),
-    'SVC+PCA': svm.SVC(gamma='scale'),
-    'SVC+Chi': svm.SVC(gamma='scale'),
+    'SVC':     svm.SVC(),
+    'SVC+PCA': svm.SVC(),
+    'SVC+Chi': svm.SVC(),
     # 'SVC': svm.SVC(gamma='scale'),
 }
 
@@ -32,7 +32,7 @@ extractors = {
     'SVC+Chi': chi2
 }
 
-def extract(X, n_components, clf_name):
+def extract(X, y, n_components, clf_name):
     if (clf_name == 'SVC'):
         return X
     elif (clf_name == 'SVC+PCA'):
@@ -43,7 +43,7 @@ def extract(X, n_components, clf_name):
 # Choose metrics
 used_metrics = {
     "ACC": metrics.accuracy_score,
-    "BAC": metrics.balanced_accuracy_score,
+    # "BAC": metrics.balanced_accuracy_score,
     #'APC': metrics.average_precision_score,
     #'BSL': metrics.brier_score_loss,
     #'CKS': metrics.cohen_kappa_score,
@@ -81,23 +81,25 @@ print(
     % (len(ds_feature_names), len(classifiers), len(used_metrics))
 )
 rescube = np.zeros((len(ds_feature_names), len(classifiers), len(used_metrics), 5))
+# Temporal tqdm disabler
+disable = True
 
 
-for i, n_components in enumerate(tqdm(components_arr, desc="DBS", ascii=True)):
-    for c, clf_name in enumerate(tqdm(classifiers, desc="CLF", ascii=True)):
-        X, y, dbname = datasets[0]
+for i, n_components in enumerate(tqdm(components_arr, desc="DBS", ascii=True, position=0, leave=True, disable=disable)):
+    for c, clf_name in enumerate(tqdm(classifiers, desc="CLF", ascii=True, position=1, leave=True, disable=disable)):
+        Xs, y, dbname = datasets[0]
         skf = model_selection.StratifiedKFold(n_splits=5)
-        X = extract(np.copy(X), n_components, clf_name)
+        X = extract(Xs, y, n_components, clf_name)
 
         for fold, (train, test) in enumerate(
-            tqdm(skf.split(X, y), desc="FLD", ascii=True, total=5)
+            tqdm(skf.split(X, y), desc="FLD", ascii=True, total=5, position=2, leave=True, disable=disable)
         ):
             X_train, X_test = X[train], X[test]
             y_train, y_test = y[train], y[test]
             clf = base.clone(classifiers[clf_name])
             clf.fit(X_train, y_train)
             y_pred = clf.predict(X_test)
-            for m, metric_name in enumerate(tqdm(used_metrics, desc="MET", ascii=True)):
+            for m, metric_name in enumerate(tqdm(used_metrics, desc="MET", ascii=True, position=3, leave=True, disable=disable)):
                 try:
                     score = used_metrics[metric_name](y_test, y_pred)
                     rescube[i, c, m, fold] = score

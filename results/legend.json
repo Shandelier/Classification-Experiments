@@ -1,9 +1,12 @@
 {
 	"datasets": [
-		"diabetes_2_components",
-		"diabetes_4_components",
-		"diabetes_6_components",
-		"diabetes_8_components"
+		"australian_2_components",
+		"australian_4_components",
+		"australian_6_components",
+		"australian_8_components",
+		"australian_10_components",
+		"australian_12_components",
+		"australian_14_components"
 	],
 	"classifiers": [
 		"SVC",
@@ -11,8 +14,7 @@
 		"SVC+Chi"
 	],
 	"metrics": [
-		"ACC",
-		"BAC"
+		"ACC"
 	],
 	"folds": 5
 }
