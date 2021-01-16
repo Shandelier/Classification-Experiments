@@ -23,6 +23,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--dataset_dir', type=str, default='./curated-chest-xray-image-dataset-for-covid19')
 parser.add_argument('--results_dir', type=str, default='./results')
 parser.add_argument('--output_dir', type=str, default='./output')
+parser.add_argument('--output_dataset_dir', type=str, default='./datasets')
 args = parser.parse_args()
 
 
@@ -92,10 +93,10 @@ def process_images(payload):
     pd.DataFrame(y_partial).to_csv(payload["output_path"] + "_labels.csv", header=None, index=None)
 
 
-def merge_csvs():
+def merge_csvs(output, datasets):
     # Reading and combining data from partial CSV files
-    featureFiles = sorted(list(glob.glob("output\*_features.csv")))
-    labelFiles = sorted(list(glob.glob("output\*_labels.csv")))
+    featureFiles = sorted(list(glob.glob(output + "\*_features.csv")))
+    labelFiles = sorted(list(glob.glob(output + "\*_labels.csv")))
 
     # gather data size for array init
     sizer = np.genfromtxt(featureFiles[0], delimiter=",")
@@ -118,7 +119,7 @@ def merge_csvs():
     b = y.shape
 
     ds = np.concatenate((X,y.reshape(y.shape[0],1)), axis=1)
-    np.savetxt("datasets\COVID_19.csv", ds, delimiter=",")
+    np.savetxt(datasets+"\COVID_19.csv", ds, delimiter=",")
 
 
 
@@ -126,6 +127,7 @@ def main():
     dataset_dir = args.dataset_dir
     output_dir = args.output_dir
     results_dir = args.results_dir
+    output_dataset_dir = args.output_dataset_dir
 
     # Start time counter
     start = time.perf_counter()
@@ -182,7 +184,7 @@ def main():
     snapshot = time.perf_counter()
     print(f"[INFO] Image preprocessing finished in {snapshot - start:0.4f} seconds")
 
-    merge_csvs()
+    merge_csvs(output_dir, output_dataset_dir)
     print(f"[INFO] CSVs files merged")
 
 

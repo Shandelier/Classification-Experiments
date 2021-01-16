@@ -3,3 +3,5 @@ __pycache__
 output/
 
 curated-chest-xray-image-dataset-for-covid19/
+
+datasets/*
