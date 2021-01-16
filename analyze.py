@@ -18,7 +18,8 @@ from sklearn import preprocessing
 from sklearn.feature_selection import chi2, SelectKBest
 from sklearn.decomposition import PCA
 
-# Initialize classifiers
+
+# Initialize classifiers and extractions
 classifiers = {
     'SVC':     svm.SVC(),
     'SVC+PCA': svm.SVC(),
@@ -26,16 +27,14 @@ classifiers = {
     # 'SVC': svm.SVC(gamma='scale'),
 }
 
-extractors = {
-    'SVC': None,
-    'SVC+PCA': PCA,
-    'SVC+Chi': chi2
-}
-
 def extract(X, y, n_components, clf_name):
     if (clf_name == 'SVC'):
         return X
     elif (clf_name == 'SVC+PCA'):
+        # TODO: delete after tests
+        if (n_components < 10):
+            variance = PCA().fit(X).explained_variance_ratio_
+            print(variance[:3])
         return PCA(n_components=n_components).fit_transform(X)
     elif (clf_name == 'SVC+Chi'):
         return SelectKBest(score_func=chi2, k=n_components).fit_transform(X,y)
@@ -43,7 +42,7 @@ def extract(X, y, n_components, clf_name):
 # Choose metrics
 used_metrics = {
     "ACC": metrics.accuracy_score,
-    # "BAC": metrics.balanced_accuracy_score,
+    #"BAC": metrics.balanced_accuracy_score,
     #'APC': metrics.average_precision_score,
     #'BSL': metrics.brier_score_loss,
     #'CKS': metrics.cohen_kappa_score,
@@ -60,6 +59,7 @@ used_metrics = {
 }
 
 # Gather all the datafiles and filter them by tags
+# TODO: refactor it to select only one dataset
 files = ut.dir2files("datasets/")
 if (len(files) > 1):
     print("too many datasets, place only one in directory. Enter anything to continue on your own resposibility")
@@ -72,17 +72,21 @@ for file in files:
 #  Vector of selected features quantity in iteration
 n_features = datasets[0][0].shape[1]
 components_arr = np.arange(2, n_features+1, 2)
-# Prepare results cube
+# prepare row names
 ds_feature_names = []
 for c_n in components_arr:
     ds_feature_names.append("{}_{}_components".format(datasets[0][2], c_n))
+
 print(
     "# Experiment on %i datasets, with %i estimators using %i metrics."
     % (len(ds_feature_names), len(classifiers), len(used_metrics))
 )
+
+# Prepare results cube
 rescube = np.zeros((len(ds_feature_names), len(classifiers), len(used_metrics), 5))
 # Temporal tqdm disabler
 disable = True
+skf = model_selection.StratifiedKFold(n_splits=5)
 
 
 for i, n_components in enumerate(tqdm(components_arr, desc="DBS", ascii=True, position=0, leave=True, disable=disable)):
@@ -99,6 +103,8 @@ for i, n_components in enumerate(tqdm(components_arr, desc="DBS", ascii=True, po
             clf = base.clone(classifiers[clf_name])
             clf.fit(X_train, y_train)
             y_pred = clf.predict(X_test)
+            
+            # TODO: Potężny gradient wyjasniający mi czemu SVC dyskretyzuje wyniki
             for m, metric_name in enumerate(tqdm(used_metrics, desc="MET", ascii=True, position=3, leave=True, disable=disable)):
                 try:
                     score = used_metrics[metric_name](y_test, y_pred)
