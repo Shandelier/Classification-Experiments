@@ -43,11 +43,11 @@ def extract(X, y, extr, type):
     if (type == 'PCA'):
         X = extr[type].fit_transform(X)
     elif (type == 'LDA'):
-        X = extr[type].fit_transform(X, y)
+        X = extr[type].fit_transform(X, np.squeeze(y))
     elif (type == 'KPCA'):
         # KPCA requires too much RAM to run the whole set
-        X, y = resample(X, y, n_samples=int(len(y)*.4), random_state=420)
-        X = extr[type].fit_transform(X, y)
+        X, y = resample(X, y, n_samples=int(len(y)*.1), random_state=420)
+        X = extr[type].fit_transform(X, np.squeeze(y))
 
     # concatenating with y set
     return np.concatenate((X, y), axis=1)
