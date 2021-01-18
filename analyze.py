@@ -21,23 +21,13 @@ from sklearn.decomposition import PCA
 
 # Initialize classifiers and extractions
 classifiers = {
-    'SVC':     svm.SVC(),
-    'SVC+PCA': svm.SVC(),
-    'SVC+Chi': svm.SVC(),
-    # 'SVC': svm.SVC(gamma='scale'),
+    # "GNB": naive_bayes.GaussianNB(),
+    # "kNN": neighbors.KNeighborsClassifier(),
+    'SVC': svm.SVC(gamma='scale'),
+    # 'DTC': tree.DecisionTreeClassifier(),
+    #'MLP': neural_network.MLPClassifier()
 }
 
-def extract(X, y, n_components, clf_name):
-    if (clf_name == 'SVC'):
-        return X
-    elif (clf_name == 'SVC+PCA'):
-        # TODO: delete after tests
-        if (n_components < 10):
-            variance = PCA().fit(X).explained_variance_ratio_
-            print(variance[:3])
-        return PCA(n_components=n_components).fit_transform(X)
-    elif (clf_name == 'SVC+Chi'):
-        return SelectKBest(score_func=chi2, k=n_components).fit_transform(X,y)
 
 # Choose metrics
 used_metrics = {
@@ -59,53 +49,41 @@ used_metrics = {
 }
 
 # Gather all the datafiles and filter them by tags
-# TODO: refactor it to select only one dataset
 files = ut.dir2files("datasets/")
-if (len(files) > 1):
-    print("too many datasets, place only one in directory. Enter anything to continue on your own resposibility")
-    input()
+tag_filter = ["imbalanced"]  # , "multi-class"]
 datasets = []
 for file in files:
-    X, y, dbname, _ = ut.csv2Xy(file)
-    datasets.append((X, y, dbname))
-
-#  Vector of selected features quantity in iteration
-n_features = datasets[0][0].shape[1]
-components_arr = np.arange(2, n_features+1, 2)
-# prepare row names
-ds_feature_names = []
-for c_n in components_arr:
-    ds_feature_names.append("{}_{}_components".format(datasets[0][2], c_n))
-
-print(
-    "# Experiment on %i datasets, with %i estimators using %i metrics."
-    % (len(ds_feature_names), len(classifiers), len(used_metrics))
-)
+    X, y, dbname, tags = ut.csv2Xy(file)
+    intersecting_tags = ut.intersection(tags, tag_filter)
+    if len(intersecting_tags):
+        datasets.append((X, y, dbname))
 
 # Prepare results cube
-rescube = np.zeros((len(ds_feature_names), len(classifiers), len(used_metrics), 5))
-# Temporal tqdm disabler
-disable = True
-skf = model_selection.StratifiedKFold(n_splits=5)
+print(
+    "# Experiment on %i datasets, with %i estimators using %i metrics."
+    % (len(datasets), len(classifiers), len(used_metrics))
+)
+rescube = np.zeros((len(datasets), len(classifiers), len(used_metrics), 5))
 
+# Iterate datasets
+disable_tqdm = True
+for i, dataset in enumerate(tqdm(datasets, desc="DBS", ascii=True, position=0, leave=True, disable=disable_tqdm)):
+    # load dataset
+    X, y, dbname = dataset
 
-for i, n_components in enumerate(tqdm(components_arr, desc="DBS", ascii=True, position=0, leave=True, disable=disable)):
-    for c, clf_name in enumerate(tqdm(classifiers, desc="CLF", ascii=True, position=1, leave=True, disable=disable)):
-        Xs, y, dbname = datasets[0]
-        skf = model_selection.StratifiedKFold(n_splits=5)
-        X = extract(Xs, y, n_components, clf_name)
-
-        for fold, (train, test) in enumerate(
-            tqdm(skf.split(X, y), desc="FLD", ascii=True, total=5, position=2, leave=True, disable=disable)
-        ):
-            X_train, X_test = X[train], X[test]
-            y_train, y_test = y[train], y[test]
+    # Folds
+    skf = model_selection.StratifiedKFold(n_splits=5)
+    for fold, (train, test) in enumerate(
+        tqdm(skf.split(X, y), desc="FLD", ascii=True, total=5, position=1, leave=True, disable=disable_tqdm)
+    ):
+        X_train, X_test = X[train], X[test]
+        y_train, y_test = y[train], y[test]
+        for c, clf_name in enumerate(tqdm(classifiers, desc="CLF", ascii=True, position=2, leave=True, disable=disable_tqdm)):
             clf = base.clone(classifiers[clf_name])
             clf.fit(X_train, y_train)
             y_pred = clf.predict(X_test)
-            
-            # TODO: Potężny gradient wyjasniający mi czemu SVC dyskretyzuje wyniki
-            for m, metric_name in enumerate(tqdm(used_metrics, desc="MET", ascii=True, position=3, leave=True, disable=disable)):
+
+            for m, metric_name in enumerate(tqdm(used_metrics, desc="MET", ascii=True, position=3, leave=True, disable=disable_tqdm)):
                 try:
                     score = used_metrics[metric_name](y_test, y_pred)
                     rescube[i, c, m, fold] = score
@@ -117,7 +95,7 @@ np.save("results/rescube", rescube)
 with open("results/legend.json", "w") as outfile:
     json.dump(
         {
-            "datasets": [obj for obj in ds_feature_names],
+            "datasets": [obj[2] for obj in datasets],
             "classifiers": list(classifiers.keys()),
             "metrics": list(used_metrics.keys()),
             "folds": 5,
@@ -127,4 +105,3 @@ with open("results/legend.json", "w") as outfile:
     )
 
 print("\n")
-
