@@ -21,42 +21,39 @@ from sklearn.decomposition import PCA
 
 # Initialize classifiers and extractions
 classifiers = {
-    # "GNB": naive_bayes.GaussianNB(),
-    # "kNN": neighbors.KNeighborsClassifier(),
-    'SVC': svm.SVC(gamma='scale'),
-    # 'DTC': tree.DecisionTreeClassifier(),
-    #'MLP': neural_network.MLPClassifier()
+    "GNB": naive_bayes.GaussianNB(),
+    "kNN": neighbors.KNeighborsClassifier(3),
+    'SVC-LIN': svm.SVC(kernel="linear", C=0.025),
+    'SVC': svm.SVC(kernel='rbf', gamma=2, C=1),
+    'DTC': tree.DecisionTreeClassifier(max_depth=5),
+    'MLP': neural_network.MLPClassifier(alpha=1, max_iter=1000)
 }
-
 
 # Choose metrics
 used_metrics = {
     "ACC": metrics.accuracy_score,
-    #"BAC": metrics.balanced_accuracy_score,
-    #'APC': metrics.average_precision_score,
-    #'BSL': metrics.brier_score_loss,
-    #'CKS': metrics.cohen_kappa_score,
-    #'F1': metrics.f1_score,
-    #'HaL': metrics.hamming_loss,
-    #'HiL': metrics.hinge_loss,
-    #'JSS': metrics.jaccard_similarity_score,
-    #'LoL': metrics.log_loss,
-    #'MaC': metrics.matthews_corrcoef,
-    #'PS': metrics.precision_score,
-    #'RCS': metrics.recall_score,
-    #'AUC': metrics.roc_auc_score,
-    #'ZOL': metrics.zero_one_loss,
+    "BAC": metrics.balanced_accuracy_score,
+    # 'APC': metrics.average_precision_score,
+    # 'BSL': metrics.brier_score_loss,
+    # 'CKS': metrics.cohen_kappa_score,
+    # 'F1': metrics.f1_score,
+    # 'HaL': metrics.hamming_loss,
+    # 'HiL': metrics.hinge_loss,
+    # 'JSS': metrics.jaccard_similarity_score,
+    # 'LoL': metrics.log_loss,
+    # 'MaC': metrics.matthews_corrcoef,
+    # 'PS': metrics.precision_score,
+    # 'RCS': metrics.recall_score,
+    'AUC': metrics.roc_auc_score,
+    # 'ZOL': metrics.zero_one_loss,
 }
 
 # Gather all the datafiles and filter them by tags
 files = ut.dir2files("datasets/")
-tag_filter = ["imbalanced"]  # , "multi-class"]
 datasets = []
 for file in files:
     X, y, dbname, tags = ut.csv2Xy(file)
-    intersecting_tags = ut.intersection(tags, tag_filter)
-    if len(intersecting_tags):
-        datasets.append((X, y, dbname))
+    datasets.append((X, y, dbname))
 
 # Prepare results cube
 print(
@@ -67,14 +64,15 @@ rescube = np.zeros((len(datasets), len(classifiers), len(used_metrics), 5))
 
 # Iterate datasets
 disable_tqdm = True
-for i, dataset in enumerate(tqdm(datasets, desc="DBS", ascii=True, position=0, leave=True, disable=disable_tqdm)):
+for i, dataset in enumerate(tqdm(datasets, desc="DBS", ascii=True, position=0, leave=True, disable=(not disable_tqdm))):
     # load dataset
     X, y, dbname = dataset
 
     # Folds
     skf = model_selection.StratifiedKFold(n_splits=5)
     for fold, (train, test) in enumerate(
-        tqdm(skf.split(X, y), desc="FLD", ascii=True, total=5, position=1, leave=True, disable=disable_tqdm)
+        tqdm(skf.split(X, y), desc="FLD", ascii=True, total=5,
+             position=1, leave=True, disable=disable_tqdm)
     ):
         X_train, X_test = X[train], X[test]
         y_train, y_test = y[train], y[test]
