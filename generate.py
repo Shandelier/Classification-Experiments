@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import preprocess_utils as pre
 import numpy as np
+import os
 
 from sklearn.datasets import make_classification
 
@@ -20,7 +21,14 @@ def gen_data(n_samples, n_features, n_classes, weights):
     )
 
 
+# Create directories
 datasets = r"./datasets"
+results = r"./results"
+if not os.path.isdir(datasets):
+    os.makedirs(datasets)
+if not os.path.isdir(results):
+    os.makedirs(results)
+
 
 n_samples = 2500
 n_features = [100, 200, 300, 500, 1000, 2000, 5000]
