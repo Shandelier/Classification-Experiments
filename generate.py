@@ -38,7 +38,7 @@ for f in n_features:
     X, y = gen_data(n_samples, f, n_classes, [1])
     y = np.array([y]).T
     ds = np.concatenate((X, y), axis=1)
-    np.savetxt(datasets+"/2_class_balanced_{}_atr.csv".format(f),
+    np.savetxt(datasets+"/balanced_{}_atr.csv".format(f),
                ds, delimiter=",")
 
 n_features = 50
@@ -67,4 +67,4 @@ for f in ratio:
     X, y = gen_data(n_samples, n_features, n_classes, ratio[f])
     y = np.array([y]).T
     ds = np.concatenate((X, y), axis=1)
-    np.savetxt(datasets+"/2_class_{}_ratio.csv".format(f), ds, delimiter=",")
+    np.savetxt(datasets+"/3_class_{}_ratio.csv".format(f), ds, delimiter=",")
