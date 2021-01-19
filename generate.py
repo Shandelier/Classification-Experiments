@@ -22,14 +22,16 @@ def gen_data(n_samples, n_features, n_classes, weights):
 
 datasets = r"./datasets"
 
-n_samples = 100
+n_samples = 2500
 n_features = [100, 200, 300, 500, 1000, 2000, 5000]
 n_classes = 2
 print("2 balanced class")
 for f in n_features:
-    X, y = gen_data(n_samples, n_features, n_classes, 1)
-    ds = np.concatenate((X, y.T), axis=1)
-    np.savetxt(datasets+"/2-class-balanced_{}_atr.csv".format(f), delimiter=",")
+    X, y = gen_data(n_samples, f, n_classes, [1])
+    y = np.array([y]).T
+    ds = np.concatenate((X, y), axis=1)
+    np.savetxt(datasets+"/2_class_balanced_{}_atr.csv".format(f),
+               ds, delimiter=",")
 
 n_features = 50
 n_classes = 2
@@ -39,20 +41,22 @@ ratio = {"1-9": [.1, .9],
          "4-6": [.4, .6],
          "5-5": [.5, .5]}
 print("2 class")
-for f in n_features:
+for f in ratio:
     X, y = gen_data(n_samples, n_features, n_classes, ratio[f])
-    ds = np.concatenate((X, y.T), axis=1)
-    np.savetxt(datasets+"/2_class_{}_ratio.csv".format(f), delimiter=",")
+    y = np.array([y]).T
+    ds = np.concatenate((X, y), axis=1)
+    np.savetxt(datasets+"/2_class_{}_ratio.csv".format(f), ds,  delimiter=",")
 
 n_classes = 3
 n_features = 50
-ratio = {"[7-2-1]": [.7, .2, .1],
-         "[6-3-1]": [.6, .3, .1],
-         "[5-3-2]": [.5, .3, .2],
-         "[4-4-2]": [.4, .4, .2],
-         "[3-3-3]": [.33, .33, .33]}
+ratio = {"7-2-1": [.7, .2, .1],
+         "6-3-1": [.6, .3, .1],
+         "5-3-2": [.5, .3, .2],
+         "4-4-2": [.4, .4, .2],
+         "3-3-3": [.33, .33, .33]}
 print("3 class")
-for f in n_features:
+for f in ratio:
     X, y = gen_data(n_samples, n_features, n_classes, ratio[f])
-    ds = np.concatenate((X, y.T), axis=1)
-    np.savetxt(datasets+"/2_class_{}_ratio.csv".format(f), delimiter=",")
+    y = np.array([y]).T
+    ds = np.concatenate((X, y), axis=1)
+    np.savetxt(datasets+"/2_class_{}_ratio.csv".format(f), ds, delimiter=",")
