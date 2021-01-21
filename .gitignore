@@ -6,3 +6,7 @@ curated-chest-xray-image-dataset-for-covid19/
 
 datasets/*
 resoults/rescube.npy
+
+datasets_large/
+
+Wnioski MMO.md

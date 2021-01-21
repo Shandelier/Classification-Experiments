@@ -1,0 +1,28 @@
+{
+	"datasets": [
+		"2_class_1-9_ratio",
+		"2_class_2-8_ratio",
+		"2_class_3-7_ratio",
+		"2_class_4-6_ratio",
+		"2_class_5-5_ratio",
+		"3_class_7-2-1_ratio",
+		"3_class_6-3-1_ratio",
+		"3_class_4-4-2_ratio",
+		"3_class_5-3-2_ratio",
+		"3_class_3-3-3_ratio"
+	],
+	"classifiers": [
+		"GNB",
+		"kNN",
+		"SVC-LIN",
+		"SVC-RBF",
+		"CART",
+		"MLP"
+	],
+	"metrics": [
+		"ACC",
+		"BAC",
+		"AUC"
+	],
+	"folds": 5
+}
