@@ -3,6 +3,7 @@ import numpy as np
 import os
 import re
 import json
+import glob
 
 
 def json2object(path):
@@ -105,3 +106,42 @@ def load_keel(string, separator=","):
     )
 
     return X, y
+
+
+def merge_csvs(output, datasets):
+    # Reading and combining data from partial CSV files
+    featureFiles = sorted(list(glob.glob(output + "/*_features.csv")))
+    labelFiles = sorted(list(glob.glob(output + "/*_labels.csv")))
+
+    # gather data size for array init
+    sizer = np.genfromtxt(featureFiles[0], delimiter=",")
+    n_features = sizer.shape[1]
+    X = np.empty([0, n_features])
+
+    sizer = np.genfromtxt(labelFiles[0], delimiter=",")
+    n_labels = sizer.shape
+    y = np.empty([0, 1])
+
+    for filename in featureFiles:
+        data = np.genfromtxt(filename, delimiter=",")
+        X = np.concatenate((X, data), axis=0)
+
+    for filename in labelFiles:
+        data = np.genfromtxt(filename, delimiter=",")
+        y = np.append(y, data)
+
+    a = X.shape
+    b = y.shape
+
+    ds = np.concatenate((X, y.reshape(y.shape[0], 1)), axis=1)
+    np.savetxt(datasets+"/COVID_19.csv", ds, delimiter=",")
+    print("[INFO] CSVs merged")
+
+
+def extract(X, y, output_dataset_dir):
+    pca = PCA(n_components=8).fit_transform(X)
+    np.savetxt(output_dataset_dir +
+               "/COVID19_PCA_10.csv", pca, delimiter=",")
+    # chi = SelectKBest(score_func=chi2, k=10).fit_transform(X, y)
+    # np.savetxt(output_dataset_dir +
+    #            "/COVID19_CHI_10.csv", chi, delimiter=",")

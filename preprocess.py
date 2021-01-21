@@ -6,7 +6,9 @@ import glob
 import argparse
 import operator
 import numpy as np
-import pandas as pd 
+import pandas as pd
+
+from utils import merge_csvs, csv2Xy
 
 from imutils import paths
 from multiprocessing import Pool
@@ -18,9 +20,13 @@ from skimage.feature import greycomatrix
 
 from datetime import datetime
 
+from sklearn.feature_selection import chi2, SelectKBest
+from sklearn.decomposition import PCA
+
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--dataset_dir', type=str, default='./curated-chest-xray-image-dataset-for-covid19')
+parser.add_argument('--dataset_dir', type=str,
+                    default='./curated-chest-xray-image-dataset-for-covid19')
 parser.add_argument('--results_dir', type=str, default='./results')
 parser.add_argument('--output_dir', type=str, default='./output')
 parser.add_argument('--output_dataset_dir', type=str, default='./datasets')
@@ -29,8 +35,8 @@ args = parser.parse_args()
 
 # Function splitting data sets evenly between available processors
 def chunk(l, n):
-	for i in range(0, len(l), n):
-		yield l[i: i + n]
+    for i in range(0, len(l), n):
+        yield l[i: i + n]
 
 
 def process_images(payload):
@@ -42,9 +48,10 @@ def process_images(payload):
     target_size = 1024
 
     # GLCM distances & angles (in radians)
-    distances = [1,2]
+    distances = [1, 2]
     angles = [0, np.pi/4, np.pi/2, np.pi * 0.75]
-    props = ["contrast", "dissimilarity", "homogeneity", "ASM", "energy", "correlation"]
+    props = ["contrast", "dissimilarity",
+             "homogeneity", "ASM", "energy", "correlation"]
 
     # features and labels
     X_partial = []
@@ -72,8 +79,10 @@ def process_images(payload):
             img_array = np.asarray(grayscale, dtype=np.uint8)
 
             # GLCM
-            g_matrix = greycomatrix(img_array, distances, angles, normed=True, symmetric=True)
-            img_features = np.ravel([np.ravel(greycoprops(g_matrix, prop)) for prop in props]).T
+            g_matrix = greycomatrix(
+                img_array, distances, angles, normed=True, symmetric=True)
+            img_features = np.ravel(
+                [np.ravel(greycoprops(g_matrix, prop)) for prop in props]).T
 
             label = ""
             if "Normal" in imagePath:
@@ -84,43 +93,15 @@ def process_images(payload):
                 label = labels[2]
             elif "Pneumonia-Viral" in imagePath:
                 label = labels[3]
-            
+
             X_partial.append(img_features)
             y_partial.append(label)
 
     # Dump partial feature extraction results to CSV file
-    pd.DataFrame(X_partial).to_csv(payload["output_path"] + "_features.csv", header=None, index=None)
-    pd.DataFrame(y_partial).to_csv(payload["output_path"] + "_labels.csv", header=None, index=None)
-
-
-def merge_csvs(output, datasets):
-    # Reading and combining data from partial CSV files
-    featureFiles = sorted(list(glob.glob(output + "\*_features.csv")))
-    labelFiles = sorted(list(glob.glob(output + "\*_labels.csv")))
-
-    # gather data size for array init
-    sizer = np.genfromtxt(featureFiles[0], delimiter=",")
-    n_features = sizer.shape[1]
-    X = np.empty([0, n_features])
-
-    sizer = np.genfromtxt(labelFiles[0], delimiter=",")
-    n_labels = sizer.shape
-    y = np.empty([0, 1])
-
-    for filename in featureFiles:
-        data = np.genfromtxt(filename, delimiter=",")
-        X = np.concatenate((X,data), axis=0)
-
-    for filename in labelFiles:
-        data = np.genfromtxt(filename, delimiter=",")
-        y = np.append(y, data)
-
-    a = X.shape
-    b = y.shape
-
-    ds = np.concatenate((X,y.reshape(y.shape[0],1)), axis=1)
-    np.savetxt(datasets+"\COVID_19.csv", ds, delimiter=",")
-
+    pd.DataFrame(X_partial).to_csv(
+        payload["output_path"] + "_features.csv", header=None, index=None)
+    pd.DataFrame(y_partial).to_csv(
+        payload["output_path"] + "_labels.csv", header=None, index=None)
 
 
 def main():
@@ -133,7 +114,8 @@ def main():
     start = time.perf_counter()
 
     if not os.path.exists(dataset_dir):
-        raise Exception("[ERROR] Dataset directory {} not found.".format(dataset_dir))
+        raise Exception(
+            "[ERROR] Dataset directory {} not found.".format(dataset_dir))
     else:
         print("[INFO] Dataset path: {}".format(os.path.realpath(dataset_dir)))
 
@@ -165,12 +147,12 @@ def main():
     # Payload data for each thread
     payloads = []
     for (i, imagePaths) in enumerate(chunkedPaths):
-        outputPath = os.path.sep.join([output_dir,"proc_{:02d}".format(i+1)])
+        outputPath = os.path.sep.join([output_dir, "proc_{:02d}".format(i+1)])
         data = {
             "id": i,
             "input_paths": imagePaths,
             "output_path": outputPath
-            }
+        }
         payloads.append(data)
 
     print("[INFO] Launching pool of {} processes".format(procs))
@@ -182,14 +164,12 @@ def main():
 
     # Timer snapshot
     snapshot = time.perf_counter()
-    print(f"[INFO] Image preprocessing finished in {snapshot - start:0.4f} seconds")
+    print(
+        f"[INFO] Image preprocessing finished in {snapshot - start:0.4f} seconds")
 
     merge_csvs(output_dir, output_dataset_dir)
     print(f"[INFO] CSVs files merged")
 
 
-
-
-    
 if __name__ == "__main__":
     main()
