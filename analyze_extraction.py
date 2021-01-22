@@ -73,7 +73,7 @@ used_metrics = {
     # 'RCS': metrics.recall_score,
     # 'AUC': metrics.roc_auc_score,
     # 'ZOL': metrics.zero_one_loss,
-    'GMEAN': g_mean
+    'GMEAN': g_mean,
 }
 
 # Gather all the datafiles and filter them by tags
@@ -89,8 +89,7 @@ for file in files:
 
 #  Vector of selected features quantity in iteration
 n_features = datasets[0][0].shape[1]
-# TODO: change 11 to n_features+1
-components_arr = np.arange(2, 11, 2)
+components_arr = np.arange(2, n_features+1, 2)
 # prepare row names
 ds_feature_names = []
 for c_n in components_arr:
@@ -110,7 +109,9 @@ skf = model_selection.StratifiedKFold(n_splits=5)
 
 for i, n_components in enumerate(tqdm(components_arr, desc="COM", ascii=True, position=0, leave=True)):
     for c, clf_name in enumerate(tqdm(classifiers, desc="EXTR", ascii=True, position=1, leave=True, disable=disable)):
-        X, y, dbname = np.copy(datasets[0])
+        X = datasets[0][0].copy()
+        y = datasets[0][1].copy()
+
         X = extract(X, y, n_components, clf_name)
 
         for fold, (train, test) in enumerate(

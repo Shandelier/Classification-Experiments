@@ -136,12 +136,3 @@ def merge_csvs(output, datasets):
     ds = np.concatenate((X, y.reshape(y.shape[0], 1)), axis=1)
     np.savetxt(datasets+"/COVID_19.csv", ds, delimiter=",")
     print("[INFO] CSVs merged")
-
-
-def extract(X, y, output_dataset_dir):
-    pca = PCA(n_components=8).fit_transform(X)
-    np.savetxt(output_dataset_dir +
-               "/COVID19_PCA_10.csv", pca, delimiter=",")
-    # chi = SelectKBest(score_func=chi2, k=10).fit_transform(X, y)
-    # np.savetxt(output_dataset_dir +
-    #            "/COVID19_CHI_10.csv", chi, delimiter=",")
