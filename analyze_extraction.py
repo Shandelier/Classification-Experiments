@@ -49,10 +49,11 @@ def extract(X, y, n_components, clf_name):
 
 
 def f1_(y_true, y_pred):
-    sth = metrics.f1_score(y_true, y_pred, average='macro')
-    # TODO: delete
-    # print(sth)
-    return sth
+    return metrics.f1_score(y_true, y_pred, average='weighted')
+
+
+def g_mean(y_true, y_pred):
+    return geometric_mean_score(y_true, y_pred, average='weighted')
 
 
 # Choose metrics
@@ -72,7 +73,7 @@ used_metrics = {
     # 'RCS': metrics.recall_score,
     # 'AUC': metrics.roc_auc_score,
     # 'ZOL': metrics.zero_one_loss,
-    'GMEAN': geometric_mean_score
+    'GMEAN': g_mean
 }
 
 # Gather all the datafiles and filter them by tags
@@ -88,7 +89,8 @@ for file in files:
 
 #  Vector of selected features quantity in iteration
 n_features = datasets[0][0].shape[1]
-components_arr = np.arange(2, n_features+1, 2)
+# TODO: change 11 to n_features+1
+components_arr = np.arange(2, 11, 2)
 # prepare row names
 ds_feature_names = []
 for c_n in components_arr:
@@ -102,19 +104,18 @@ print(
 # Prepare results cube
 rescube = np.zeros((len(ds_feature_names), len(
     classifiers), len(used_metrics), 5))
-# Temporal tqdm disabler
+# tqdm print disabler
 disable = True
 skf = model_selection.StratifiedKFold(n_splits=5)
 
-for i, n_components in enumerate(tqdm(components_arr, desc="DBS", ascii=True, position=0, leave=True)):
-    for c, clf_name in enumerate(tqdm(classifiers, desc="CLF", ascii=True, position=1, leave=True, disable=disable)):
-        Xs, y, dbname = datasets[0]
-        skf = model_selection.StratifiedKFold(n_splits=5)
-        X = extract(Xs, y, n_components, clf_name)
+for i, n_components in enumerate(tqdm(components_arr, desc="COM", ascii=True, position=0, leave=True)):
+    for c, clf_name in enumerate(tqdm(classifiers, desc="EXTR", ascii=True, position=1, leave=True, disable=disable)):
+        X, y, dbname = np.copy(datasets[0])
+        X = extract(X, y, n_components, clf_name)
 
         for fold, (train, test) in enumerate(
             tqdm(skf.split(X, y), desc="FLD", ascii=True,
-                 total=5, position=2, leave=True, disable=disable)
+                 total=5, position=2, leave=True, disable=True)
         ):
             X_train, X_test = X[train], X[test]
             y_train, y_test = y[train], y[test]
@@ -122,7 +123,7 @@ for i, n_components in enumerate(tqdm(components_arr, desc="DBS", ascii=True, po
             clf.fit(X_train, y_train)
             y_pred = clf.predict(X_test)
 
-            for m, metric_name in enumerate(tqdm(used_metrics, desc="MET", ascii=True, position=3, leave=True, disable=disable)):
+            for m, metric_name in enumerate(tqdm(used_metrics, desc="MET", ascii=True, position=3, leave=True, disable=True)):
                 try:
                     score = used_metrics[metric_name](y_test, y_pred)
                     rescube[i, c, m, fold] = score

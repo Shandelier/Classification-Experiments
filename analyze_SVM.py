@@ -30,20 +30,20 @@ classifiers_kernels = {
 }
 
 classifiers_Cs = {
-    'SVC0.01': svm.SVC(),
-    'SVC0.1': svm.SVC(),
-    'SVC1': svm.SVC(),
-    'SVC10': svm.SVC(),
-    'SVC100': svm.SVC(),
-    'SVC1000': svm.SVC(),
+    'SVC0.01': svm.SVC(C=.01),
+    'SVC0.1': svm.SVC(C=.1),
+    'SVC1': svm.SVC(C=1),
+    'SVC10': svm.SVC(C=10),
+    'SVC100': svm.SVC(C=100),
+    'SVC1000': svm.SVC(C=1000),
 }
 
 classifiers_gammas = {
-    'SVC1': svm.SVC(),
-    'SVC0.1': svm.SVC(),
-    'SVC0.01': svm.SVC(),
-    'SVC0.001': svm.SVC(),
-    'SVC0.0001': svm.SVC()
+    'SVC1': svm.SVC(gamma=1),
+    'SVC0.1': svm.SVC(gamma=.1),
+    'SVC0.01': svm.SVC(gamma=.01),
+    'SVC0.001': svm.SVC(gamma=.001),
+    'SVC0.0001': svm.SVC(gamma=.0001),
 }
 
 hyper_parameters = {
