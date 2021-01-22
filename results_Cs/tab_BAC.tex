@@ -1,0 +1,24 @@
+\begin{table}[!ht]
+\centering
+\tiny
+\begin{tabular}{l|
+S[table-format=0.3, table-figures-uncertainty=1]|
+S[table-format=0.3, table-figures-uncertainty=1]|
+S[table-format=0.3, table-figures-uncertainty=1]|
+S[table-format=0.3, table-figures-uncertainty=1]|
+S[table-format=0.3, table-figures-uncertainty=1]|
+S[table-format=0.3, table-figures-uncertainty=1]}
+\toprule\bfseries Dataset &
+\multicolumn{1}{c|}{\bfseries SVC0.01 (1)} &
+\multicolumn{1}{c|}{\bfseries SVC0.1 (2)} &
+\multicolumn{1}{c|}{\bfseries SVC1 (3)} &
+\multicolumn{1}{c|}{\bfseries SVC10 (4)} &
+\multicolumn{1}{c|}{\bfseries SVC100 (5)} &
+\multicolumn{1}{c }{\bfseries SVC1000 (6)} \\
+\midrule
+\emph{COVID19-PCA-8}& 0.411(30) & 0.438(24) & 0.477(26) & 0.532(24) & 0.568(34) & 0.589(35) \\
+\ & $_{-}$& $_{1}$& $_{1, 2}$& $_{1, 2, 3}$& $_{1, 2, 3, 4}$& $_{all}$\\
+\bottomrule
+\end{tabular}
+\caption{Results for BAC metric}
+\end{table}

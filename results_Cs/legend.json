@@ -1,0 +1,17 @@
+{
+	"datasets": [
+		"COVID19_PCA_8"
+	],
+	"classifiers": [
+		"SVC0.01",
+		"SVC0.1",
+		"SVC1",
+		"SVC10",
+		"SVC100",
+		"SVC1000"
+	],
+	"metrics": [
+		"BAC"
+	],
+	"folds": 5
+}

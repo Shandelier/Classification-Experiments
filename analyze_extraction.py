@@ -77,15 +77,10 @@ used_metrics = {
 }
 
 # Gather all the datafiles and filter them by tags
-# TODO: refactor it to select only one dataset
-files = ut.dir2files("datasets/")
-if (len(files) > 1):
-    print("too many datasets, place only one in directory. Enter anything to continue on your own resposibility")
-    input()
 datasets = []
-for file in files:
-    X, y, dbname, _ = ut.csv2Xy(file)
-    datasets.append((X, y, dbname))
+X, y, dbname, _ = ut.csv2Xy(
+    "/content/PWr-OB-Metrics/datasets/COVID19.csv")
+datasets.append((X, y, dbname))
 
 #  Vector of selected features quantity in iteration
 n_features = datasets[0][0].shape[1]

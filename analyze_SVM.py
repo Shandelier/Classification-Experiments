@@ -80,20 +80,10 @@ for hp in hyper_parameters:
 
 
 # Gather all the datafiles and filter them by tags
-# TODO: refactor it to select only one dataset
-files = ut.dir2files("datasets/")
-if (len(files) > 1):
-    print("too many datasets, place only one in directory. Enter anything to continue on your own resposibility")
-    input()
 datasets = []
-for file in files:
-    X, y, dbname, _ = ut.csv2Xy(file)
-    datasets.append((X, y, dbname))
-
-# Extract 8 components from X
-# datasets[0] = PCA(n_components=10).fit_transform(datasets[0])
-disable = True
-
+X, y, dbname, _ = ut.csv2Xy(
+    "/content/PWr-OB-Metrics/datasets/COVID19_PCA_8.csv")
+datasets.append((X, y, dbname))
 
 # Temporal tqdm disabler
 disable = True
@@ -110,8 +100,8 @@ for i, clf_par in enumerate(tqdm(hyper_parameters, desc="HP", ascii=True, positi
         hyper_parameters[clf_par]), len(used_metrics), 5))
 
     for c, par_name in enumerate(tqdm(hyper_parameters[clf_par], desc="PAR", ascii=True, position=1, leave=True, disable=disable)):
-        X, y, dbname = datasets[0]
-        skf = model_selection.StratifiedKFold(n_splits=5)
+        X = datasets[0][0].copy()
+        y = datasets[0][1].copy()
 
         for fold, (train, test) in enumerate(
             tqdm(skf.split(X, y), desc="FLD", ascii=True,
