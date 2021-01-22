@@ -7,7 +7,6 @@ import os  # to list files
 import re  # to use regex
 import csv  # to save some outputratio
 import json
-from numpy.lib.function_base import extract
 from tqdm import tqdm
 import utils as ut
 from sklearn import neighbors, naive_bayes, svm, tree, neural_network
@@ -18,12 +17,22 @@ from sklearn import preprocessing
 from sklearn.feature_selection import chi2, SelectKBest
 from sklearn.decomposition import PCA
 
+from imblearn.metrics import geometric_mean_score
 
-# Initialize classifiers and extractions
+
+def f1_(y_true, y_pred):
+    return metrics.f1_score(y_true, y_pred)
+
+
+def g_mean(y_true, y_pred):
+    return geometric_mean_score(y_true, y_pred)
+
+
+# Initialize classifiers
 classifiers = {
     "GNB": naive_bayes.GaussianNB(),
     "kNN": neighbors.KNeighborsClassifier(3),
-    'SVC-LIN': svm.SVC(kernel="linear"),
+    # 'SVC-LIN': svm.SVC(kernel="linear"),
     'SVC-RBF': svm.SVC(kernel='rbf'),
     'CART': tree.DecisionTreeClassifier(),
     'MLP': neural_network.MLPClassifier()
@@ -36,7 +45,7 @@ used_metrics = {
     # 'APC': metrics.average_precision_score,
     # 'BSL': metrics.brier_score_loss,
     # 'CKS': metrics.cohen_kappa_score,
-    # 'F1': metrics.f1_score,
+    'F1': f1_,
     # 'HaL': metrics.hamming_loss,
     # 'HiL': metrics.hinge_loss,
     # 'JSS': metrics.jaccard_similarity_score,
@@ -44,8 +53,9 @@ used_metrics = {
     # 'MaC': metrics.matthews_corrcoef,
     # 'PS': metrics.precision_score,
     # 'RCS': metrics.recall_score,
-    'AUC': metrics.roc_auc_score,
+    # 'AUC': metrics.roc_auc_score,
     # 'ZOL': metrics.zero_one_loss,
+    'GMEAN': g_mean
 }
 
 # Gather all the datafiles and filter them by tags
