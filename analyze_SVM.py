@@ -73,6 +73,12 @@ used_metrics = {
     # 'GMEAN': geometric_mean_score
 }
 
+# create directories
+for hp in hyper_parameters:
+    if not os.path.isdir("results_"+hp):
+        os.makedirs("results_"+hp)
+
+
 # Gather all the datafiles and filter them by tags
 # TODO: refactor it to select only one dataset
 files = ut.dir2files("datasets/")
@@ -101,9 +107,9 @@ skf = model_selection.StratifiedKFold(n_splits=5)
 for i, clf_par in enumerate(tqdm(hyper_parameters, desc="HP", ascii=True, position=0, leave=True)):
     # Prepare results cube
     rescube = np.zeros((len(datasets), len(
-        clf_par), len(used_metrics), 5))
+        hyper_parameters[clf_par]), len(used_metrics), 5))
 
-    for c, par_name in enumerate(tqdm(clf_par, desc="PAR", ascii=True, position=1, leave=True, disable=disable)):
+    for c, par_name in enumerate(tqdm(hyper_parameters[clf_par], desc="PAR", ascii=True, position=1, leave=True, disable=disable)):
         X, y, dbname = datasets[0]
         skf = model_selection.StratifiedKFold(n_splits=5)
 
@@ -113,23 +119,23 @@ for i, clf_par in enumerate(tqdm(hyper_parameters, desc="HP", ascii=True, positi
         ):
             X_train, X_test = X[train], X[test]
             y_train, y_test = y[train], y[test]
-            clf = base.clone(clf_par[par_name])
+            clf = base.clone(hyper_parameters[clf_par][par_name])
             clf.fit(X_train, y_train)
             y_pred = clf.predict(X_test)
 
             for m, metric_name in enumerate(tqdm(used_metrics, desc="MET", ascii=True, position=3, leave=True, disable=disable)):
                 try:
                     score = used_metrics[metric_name](y_test, y_pred)
-                    rescube[i, c, m, fold] = score
+                    rescube[0, c, m, fold] = score
                 except:
-                    rescube[i, c, m, fold] = np.nan
+                    rescube[0, c, m, fold] = np.nan
 
     np.save("results_{}/rescube".format(clf_par), rescube)
     with open("results_{}/legend.json".format(clf_par), "w") as outfile:
         json.dump(
             {
-                "datasets": [obj for obj in datasets[2]],
-                "classifiers": list(clf_par.keys()),
+                "datasets": [obj[2] for obj in datasets],
+                "classifiers": list(hyper_parameters[clf_par]),
                 "metrics": list(used_metrics.keys()),
                 "folds": 5,
             },

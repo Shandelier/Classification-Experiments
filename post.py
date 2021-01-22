@@ -3,60 +3,64 @@ import utils as ut
 import numpy as np
 from scipy import stats
 import latextabs as lt
+from analyze_SVM import hyper_parameters
 
 # Parameters
 used_test = stats.ranksums
 used_p = 0.05
 
-# Load results
-legend = ut.json2object("results/legend.json")
-datasets = legend["datasets"]
-classifiers = legend["classifiers"]
-metrics = legend["metrics"]
-folds = legend["folds"]
-rescube = np.load("results/rescube.npy")
+for hp in hyper_parameters:
+    results = "results_"+hp
 
-# First generate tables for each metric
-for mid, metric in enumerate(metrics):
-    print("Metric %s [%i]" % (metric, mid))
+    # Load results
+    legend = ut.json2object(results+"/legend.json")
+    datasets = legend["datasets"]
+    classifiers = legend["classifiers"]
+    metrics = legend["metrics"]
+    folds = legend["folds"]
+    rescube = np.load(results+"/rescube.npy")
 
-    table_file = open("results/tab_%s.tex" % metric, "w")
-    table_file.write(lt.header4classifiers(classifiers))
+    # First generate tables for each metric
+    for mid, metric in enumerate(metrics):
+        print("Metric %s [%i]" % (metric, mid))
 
-    for did, dataset in enumerate(datasets):
-        print("| Dataset %10s [%i]" % (dataset, did))
-        dataset = dataset.replace("_", "-")
-        # print(dataset)
-        # continue
+        table_file = open(results+"/tab_%s.tex" % metric, "w")
+        table_file.write(lt.header4classifiers(classifiers))
 
-        # Subtable is 2d (clf, fold)
-        subtable = rescube[did, :, mid, :]
+        for did, dataset in enumerate(datasets):
+            print("| Dataset %10s [%i]" % (dataset, did))
+            dataset = dataset.replace("_", "-")
+            # print(dataset)
+            # continue
 
-        # Check if metric was valid
-        if np.isnan(subtable).any():
-            print("Unvaild")
-            continue
+            # Subtable is 2d (clf, fold)
+            subtable = rescube[did, :, mid, :]
 
-        # Scores as mean over folds
-        scores = np.mean(subtable, axis=1)
-        stds = np.std(subtable, axis=1)
+            # Check if metric was valid
+            if np.isnan(subtable).any():
+                print("Unvaild")
+                continue
 
-        # Get leader and check dependency
-        # dependency = np.zeros(len(classifiers)).astype(int)
-        dependency = np.zeros((len(classifiers), len(classifiers)))
-        for cida, clf_a in enumerate(classifiers):
-            a = subtable[cida]
-            for cid, clf in enumerate(classifiers):
-                b = subtable[cid]
-                test = used_test(a, b)
-                dependency[cida, cid] = test.pvalue > used_p
+            # Scores as mean over folds
+            scores = np.mean(subtable, axis=1)
+            stds = np.std(subtable, axis=1)
 
-        print("dependency", dependency)
-        print(scores)
-        print("stds", stds)
-        table_file.write(lt.row(dataset, scores, stds))
-        table_file.write(lt.row_stats(dataset, dependency, scores, stds))
-        # exit()
+            # Get leader and check dependency
+            # dependency = np.zeros(len(classifiers)).astype(int)
+            dependency = np.zeros((len(classifiers), len(classifiers)))
+            for cida, clf_a in enumerate(classifiers):
+                a = subtable[cida]
+                for cid, clf in enumerate(classifiers):
+                    b = subtable[cid]
+                    test = used_test(a, b)
+                    dependency[cida, cid] = test.pvalue > used_p
 
-    table_file.write(lt.footer("Results for %s metric" % metric))
-    table_file.close()
+            print("dependency", dependency)
+            print(scores)
+            print("stds", stds)
+            table_file.write(lt.row(dataset, scores, stds))
+            table_file.write(lt.row_stats(dataset, dependency, scores, stds))
+            # exit()
+
+        table_file.write(lt.footer("Results for %s metric" % metric))
+        table_file.close()
