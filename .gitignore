@@ -5,3 +5,15 @@ output/
 curated-chest-xray-image-dataset-for-covid19/
 
 
+
+datasets_Chi/
+
+datasets_KPCA/
+
+datasets_PCA/
+
+results_Cs/
+
+results_Gammas/
+
+results_Kernels/

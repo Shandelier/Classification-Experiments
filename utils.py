@@ -13,6 +13,7 @@ def json2object(path):
 
 def csv2Xy(path):
     ds = np.genfromtxt(path, delimiter=",")
+    ds = np.delete(ds, 0, 0)
     X = ds[:, :-1]
     y = ds[:, -1].astype(int)
     dbname = path.split("/")[-1].split(".")[0]
