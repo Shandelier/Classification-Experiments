@@ -42,7 +42,7 @@ for ex in extractors:
 
 # Gather all the datafiles and filter them by tags
 datasets = []
-files = ut.dir2files("datasets/")
+files = ut.dir2files("datasets_/")
 for file in files:
     X, y, dbname, _ = ut.csv2Xy(file)
     datasets.append((X, y, dbname))
@@ -63,3 +63,5 @@ for i, ex in enumerate(extractors):
         data = np.concatenate((X, y), axis=1)
         np.savetxt("datasets_{}/{}.csv".format(ex, dbname),
                    X=data, delimiter=",")
+
+print("Datasets extracted")

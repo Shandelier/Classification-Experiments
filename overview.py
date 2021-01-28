@@ -8,10 +8,10 @@ import numpy as np  # to calculate ratio
 import utils as ut
 
 # Gather all the datafiles
-files = ut.dir2files("datasets/")
+files = ut.dir2files("datasets_/")
 
 # Iterate datafiles
-with open("results/datasets.csv", "w") as csvfile:
+with open("results_/datasets.csv", "w") as csvfile:
     writer = csv.writer(csvfile, delimiter=",")
     # write header
     writer.writerow(["dataset", "samples", "features",
