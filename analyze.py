@@ -13,6 +13,8 @@ from sklearn import neighbors, naive_bayes, tree
 from sklearn import base
 from sklearn import model_selection
 from sklearn import metrics
+from sklearn import svm 
+from sklearn import ensemble
 
 random_state = 1410
 
@@ -20,9 +22,11 @@ random_state = 1410
 classifiers = {
     'GNB': naive_bayes.GaussianNB(),
     'kNN': neighbors.KNeighborsClassifier(),
-    # 'SVC-LIN': svm.SVC(gamma='scale', kernel='linear'),
-    # 'SVC-RBF': svm.SVC(gamma='scale'),
+    'SVC-LIN': svm.SVC(gamma='scale', kernel='linear'),
+    'SVC-RBF': svm.SVC(gamma='scale'),
     'CART': tree.DecisionTreeClassifier(),
+    # 'RFC': ensemble.RandomForestClassifier(),
+    # 'GBC': ensemble.GradientBoostingClassifier()
 }
 
 # Choose metrics
@@ -84,16 +88,16 @@ for i, path in enumerate(ds_paths):
         skf = model_selection.StratifiedKFold(n_splits=5)
         for fold, (train, test) in enumerate(
             tqdm(skf.split(X, y), desc="FLD", ascii=True,
-                 total=5, position=1, leave=True, disable=True)
+                 total=5, position=1, leave=True, disable=False)
         ):
             X_train, X_test = X[train], X[test]
             y_train, y_test = y[train], y[test]
-            for c, clf_name in enumerate(tqdm(classifiers, desc="CLF", ascii=True, position=2, leave=True, disable=True)):
+            for c, clf_name in enumerate(tqdm(classifiers, desc="CLF", ascii=True, position=2, leave=True, disable=False)):
                 clf = base.clone(classifiers[clf_name])
                 clf.fit(X_train, y_train)
                 y_pred = clf.predict(X_test)
 
-                for m, metric_name in enumerate(tqdm(used_metrics, desc="MET", ascii=True, position=3, leave=True, disable=True)):
+                for m, metric_name in enumerate(tqdm(used_metrics, desc="MET", ascii=True, position=3, leave=True, disable=False)):
                     try:
                         score = used_metrics[metric_name](y_test, y_pred)
                         rescube[i, c, m, fold] = score
