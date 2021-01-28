@@ -1,0 +1,3 @@
+dataset,samples,features,classes,ratio,tags
+appendicitis,106,7,2,4,binary
+australian,690,14,2,1,binary multi-feature

@@ -68,9 +68,11 @@ res_paths = {
 
 
 # Gather all the datafiles and filter them by tags
+# tags_arr = ["binary", "multi-class", "multi-feature", "imbalanced"]
 datasets = []
 files = ut.dir2files("datasets/")
 for file in files:
+    #  TODO: intersecion of tags
     X, y, dbname, _ = ut.csv2Xy(file)
     datasets.append((X, y, dbname))
 
