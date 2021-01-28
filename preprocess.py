@@ -30,11 +30,11 @@ extractors = {
 
 # create directories
 for ex in extractors:
-    if not os.path.isdir("datasets"):
+    if not os.path.isdir("datasets_"):
         print("NO DATASETS FOLDER")
         exit()
-    if not os.path.isdir("results"):
-        os.makedirs("results")
+    if not os.path.isdir("results_"):
+        os.makedirs("results_")
     if not os.path.isdir("datasets_"+ex):
         os.makedirs("datasets_"+ex)
     if not os.path.isdir("results_"+ex):

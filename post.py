@@ -10,7 +10,7 @@ used_test = stats.wilcoxon
 used_p = 0.05
 
 hyper_parameters = {
-    "Kernels": None,
+    "": None,
     "Cs": None,
     "Gammas": None,
 }
