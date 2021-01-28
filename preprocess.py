@@ -1,10 +1,5 @@
 import os
-import csv
-import cv2
-import time
-import glob
 import argparse
-import operator
 import numpy as np
 import utils as ut
 

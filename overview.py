@@ -2,7 +2,6 @@
 # A script to analyze datasets available at w4k2/benchmark_datasets.
 
 import os  # to list files
-import re  # to use regex
 import csv  # to save some output
 import numpy as np  # to calculate ratio
 import utils as ut

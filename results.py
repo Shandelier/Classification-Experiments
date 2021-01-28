@@ -3,7 +3,6 @@ from numpy.core.numeric import NaN
 import utils as ut
 import numpy as np
 from scipy import stats
-import latextabs as lt
 from tabulate import tabulate
 
 wil_stat = stats.wilcoxon

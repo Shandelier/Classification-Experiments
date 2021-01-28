@@ -5,21 +5,14 @@
 import enum
 import numpy as np
 import os  # to list files
-import re  # to use regex
-import csv  # to save some outputratio
+
 import json
-from numpy.lib.function_base import average, extract
 from tqdm import tqdm
 import utils as ut
-from sklearn import neighbors, naive_bayes, svm, tree, neural_network
+from sklearn import neighbors, naive_bayes, tree
 from sklearn import base
 from sklearn import model_selection
 from sklearn import metrics
-from sklearn import preprocessing
-from sklearn.feature_selection import chi2, SelectKBest
-from sklearn.decomposition import PCA, KernelPCA
-
-from imblearn.metrics import geometric_mean_score
 
 random_state = 1410
 
