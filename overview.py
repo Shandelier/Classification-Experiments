@@ -7,8 +7,16 @@ import csv  # to save some output
 import numpy as np  # to calculate ratio
 import utils as ut
 
+
+if not os.path.isdir("datasets_"):
+    print("NO DATASETS FOLDER")
+    exit()
+if not os.path.isdir("results_"):
+    os.makedirs("results_")
+
 # Gather all the datafiles
 files = ut.dir2files("datasets_/")
+
 
 # Iterate datafiles
 with open("results_/datasets.csv", "w") as csvfile:
