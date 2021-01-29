@@ -18,7 +18,8 @@ def convert_to_latex_table(table, headers, first_column, use_float=False):
         for row in table:
             print(first_column[k] + ' & ', end='')
             if use_float:
-                print(' & '.join(["{:.2f}".format(col) for col in row]), end='')
+                print(' & '.join(["{:.2f}".format(col)
+                                  for col in row]), end='')
             else:
                 print(' & '.join([str(int(col)) for col in row]), end='')
             print('\\\\\n\\hline')
@@ -27,7 +28,7 @@ def convert_to_latex_table(table, headers, first_column, use_float=False):
         print("\n\n")
     except Exception:
         print("NO CAN DO, SORRY")
-    
+
 
 def wilcoxon_procedure(_rescube, _classifiers, _datasets, print_latex=False):
     mean_scores = np.mean(_rescube, axis=3)
@@ -49,13 +50,16 @@ def wilcoxon_procedure(_rescube, _classifiers, _datasets, print_latex=False):
     p_value_wil = np.zeros((len(_classifiers), len(_classifiers)))
     for i in range(len(_classifiers)):
         for j in range(len(_classifiers)):
-            w_statistic[i, j], p_value_wil[i, j] = wil_stat(ranks.T[i], ranks.T[j])
+            w_statistic[i, j], p_value_wil[i, j] = wil_stat(
+                ranks.T[i], ranks.T[j])
 
     names_column = np.expand_dims(np.array(_classifiers), axis=1)
     w_statistic_table = np.concatenate((names_column, w_statistic), axis=1)
-    w_statistic_table = tabulate(w_statistic_table, _classifiers, floatfmt=".2f")
+    w_statistic_table = tabulate(
+        w_statistic_table, _classifiers, floatfmt=".2f")
     p_value_wil_table = np.concatenate((names_column, p_value_wil), axis=1)
-    p_value_wil_table = tabulate(p_value_wil_table, _classifiers, floatfmt=".2f")
+    p_value_wil_table = tabulate(
+        p_value_wil_table, _classifiers, floatfmt=".2f")
     print('w-statistic:')
     print(w_statistic_table)
     if print_latex:
@@ -68,7 +72,8 @@ def wilcoxon_procedure(_rescube, _classifiers, _datasets, print_latex=False):
 
     advantage = np.zeros((len(_classifiers), len(_classifiers)))
     advantage[w_statistic > 0] = 1
-    advantage_w_table = tabulate(np.concatenate((names_column, advantage), axis=1), _classifiers)
+    advantage_w_table = tabulate(np.concatenate(
+        (names_column, advantage), axis=1), _classifiers)
     print('Advantage')
     print(advantage_w_table)
     if print_latex:
@@ -76,7 +81,8 @@ def wilcoxon_procedure(_rescube, _classifiers, _datasets, print_latex=False):
 
     significance = np.zeros((len(_classifiers), len(_classifiers)))
     significance[p_value_wil <= alfa] = 1
-    significance_table = tabulate(np.concatenate((names_column, significance), axis=1), _classifiers)
+    significance_table = tabulate(np.concatenate(
+        (names_column, significance), axis=1), _classifiers)
     print()
     print('Statistical significance ( alpha =', alfa, '):')
     print(significance_table)
@@ -143,7 +149,8 @@ for path in res_paths:
             convert_to_latex_table(stat_better_t, classifiers, classifiers)
             print("\n\n")
 
-            vec = np.full([len(classifiers)], fill_value="------------------------------")
+            vec = np.full([len(classifiers)],
+                          fill_value="------------------------------")
             for i, name in enumerate(classifiers):
                 for j, worse in enumerate(classifiers):
                     if stat_better_t[i, j] == 1:
@@ -161,3 +168,12 @@ for path in res_paths:
     print(tabulate(sig_better))
     print()
     print()
+
+    print("\n\n================dMET RESULTS================\n")
+    for imet, met in enumerate(metrics):
+        metric_table = np.zeros((len(datasets), len(classifiers)))
+        for ids, ds in enumerate(datasets):
+            scores = rescube[ids, :, imet, :]
+            metric_table[ids, :] = np.mean(scores, axis=1)
+        print("\n\n================{} RESULTS================\n".format(met))
+        convert_to_latex_table(metric_table, classifiers, datasets, True)
