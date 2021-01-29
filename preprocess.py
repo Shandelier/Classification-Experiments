@@ -46,13 +46,15 @@ for file in files:
 for i, ex in enumerate(extractors):
     for ds in datasets:
         X, y, dbname = ds
+        print('Processing', dbname)
+
         half = round(X.shape[1]/2)
-        if (ex == 'PCA'):
+        if ex == 'PCA':
             X = PCA(n_components=half, svd_solver='auto').fit_transform(X)
-        elif (ex == 'KPCA'):
+        elif ex == 'KPCA':
             X = KernelPCA(n_components=half, random_state=random_state, kernel='rbf',
                           copy_X=False, eigen_solver='auto').fit_transform(X)
-        elif (ex == 'Chi'):
+        elif ex == 'Chi':
             X = SelectKBest(score_func=chi2, k=half).fit_transform(X, y)
         y = y.reshape(y.shape[0], 1)
         data = np.concatenate((X, y), axis=1)
