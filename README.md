@@ -1,6 +1,6 @@
 # Obrazowanie Biomedyczne
 
-## Different datasets and experiments on branches
+## [INFO] Different datasets and experiments on branches
 
 A study of Extraction Methods and SVM hyper-parameters impact on classification problem for 4 class COVID-19 and Pneumonia dataset.
 
